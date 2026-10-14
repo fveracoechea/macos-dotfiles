@@ -25,7 +25,6 @@
       "Grep(*)",
       "WebFetch",
       "WebSearch",
-      "mcp__plugin_figma_figma",
       "Skill(figma:*)"
     ],
     "deny": [
@@ -40,12 +39,16 @@
       "AskUserQuestion",
       "CronCreate",
       "CronDelete",
-      "CronList"
+      "CronList",
+      "mcp__plugin_figma_figma"
     ]
   },
   "statusLine": {
     "command": "~/.claude/statusline.sh",
     "type": "command"
   },
-  "theme": "dark-ansi"
+  "theme": "dark-ansi",
+  "enabledPlugins": {
+    "slack@claude-plugins-official": true
+  }
 }
