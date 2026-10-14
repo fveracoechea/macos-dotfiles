@@ -5,11 +5,6 @@ vim.filetype.add {
   },
 }
 
--- appropriately highlight codefences returned from denols
-vim.g.markdown_fenced_languages = {
-  "ts=typescript",
-}
-
 vim.diagnostic.config {
   underline = true,
   severity_sort = true,
@@ -42,7 +37,6 @@ vim.lsp.document_color.enable(false)
 vim.lsp.enable {
   "biome",
   "cssls",
-  "denols",
   "eslint",
   "graphql",
   "html",

@@ -1,14 +1,9 @@
 local conform = require "conform"
-local util = require "conform.util"
 
-local js_formatters = { "prettier", "biome-check", "deno_fmt", "oxfmt", stop_after_first = true }
+local js_formatters = { "prettier", "biome-check", "oxfmt", stop_after_first = true }
 
 conform.setup {
   formatters = {
-    deno_fmt = {
-      require_cwd = true,
-      cwd = util.root_file { "deno.json", "deno.jsonc" },
-    },
     prettier = {
       require_cwd = true,
     },
