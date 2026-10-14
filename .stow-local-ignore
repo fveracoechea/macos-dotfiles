@@ -1,0 +1,17 @@
+# This list replaces the stow built-in list, so it names .git and .DS_Store too.
+# A pattern with no slash matches a basename anywhere.
+# A pattern that starts with ^/ matches a path from the repo root.
+\.git
+\.DS_Store
+^/\.gitignore
+^/\.github
+^/\.stowrc
+^/\.stow-local-ignore
+^/\.stylua\.toml
+^/\.luacheckrc
+^/Brewfile
+^/justfile
+^/README\.md
+^/agents
+^/macos
+^/wallpapers

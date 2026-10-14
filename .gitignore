@@ -1,0 +1,9 @@
+.DS_Store
+
+# Only the ssh config belongs here. Keys and known_hosts stay in ~/.ssh.
+/.ssh/*
+!/.ssh/config
+
+# Machine-local files that live next to stowed config.
+/.config/zsh/secrets.zsh
+/.config/zsh/.zsh_history
