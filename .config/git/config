@@ -1,0 +1,16 @@
+[core]
+	editor = nvim
+	pager = hunk pager
+
+[credential]
+	helper = osxkeychain
+
+[pull]
+	rebase = true
+
+[rebase]
+	autosquash = true
+
+[user]
+	email = veracoecheafrancisco@gmail.com
+	name = Francisco Veracoechea

@@ -1,0 +1,10 @@
+#!/bin/bash
+# `brew services start borders` runs this file.
+options=(
+  active_color=0xffcba6f7
+  inactive_color=0xff585b70
+  style=round
+  width=8.0
+)
+
+borders "${options[@]}"

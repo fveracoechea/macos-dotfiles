@@ -1,0 +1,11 @@
+hunk_headers = false
+line_numbers = true
+mode = "stack"
+theme = "catppuccin-mocha"
+transparent_background = true
+warp_lines = false
+
+[extensions]
+# `just install` clones hunk-gh here. Hunk's automatic discovery skips
+# symlinked extension directories, so the path is explicit.
+paths = ["~/.local/share/hunk-gh"]

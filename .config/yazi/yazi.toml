@@ -1,0 +1,54 @@
+[mgr]
+ratio = [1, 1, 2]
+show_hidden = true
+sort_dir_first = true
+
+[[mgr.prepend_keymap]]
+desc = "Smart Filter"
+on = "F"
+run = "plugin smart-filter"
+
+[[mgr.prepend_keymap]]
+desc = "Enter the child directory, or open the file"
+on = "l"
+run = "plugin smart-enter"
+
+[[plugin.prepend_fetchers]]
+group = "git"
+id = "git"
+run = "git"
+url = "*"
+
+[[plugin.prepend_fetchers]]
+group = "git"
+id = "git"
+run = "git"
+url = "*/"
+
+[[plugin.prepend_preloaders]]
+mime = "{audio,video,image}/*"
+run = "mediainfo"
+
+[[plugin.prepend_preloaders]]
+mime = "application/subrip"
+run = "mediainfo"
+
+[[plugin.prepend_previewers]]
+mime = "{audio,video,image}/*"
+run = "mediainfo"
+
+[[plugin.prepend_previewers]]
+mime = "application/subrip"
+run = "mediainfo"
+
+[[plugin.prepend_previewers]]
+run = 'piper -- eza -TL=3 --git-ignore --color=always --icons=always --group-directories-first --no-quotes "$1"'
+url = "*/"
+
+[preview]
+max_height = 1800
+max_width = 1200
+
+[tasks]
+image_alloc = 0
+image_bound = [0, 0]

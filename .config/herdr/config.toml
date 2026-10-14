@@ -1,0 +1,18 @@
+onboarding = false
+
+[keys]
+detach = "prefix+d"
+goto = "prefix+s"
+navigate_workspace_down = "j"
+navigate_workspace_up = "k"
+prefix = "ctrl+b"
+settings = "prefix+g"
+
+[theme]
+auto_switch = false
+name = "catppuccin"
+
+[ui]
+agent_panel_sort = "spaces"
+show_agent_labels_on_pane_borders = true
+sidebar_width = 32
