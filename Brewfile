@@ -1,0 +1,108 @@
+tap "nikitabobko/tap"
+tap "felixkratz/formulae"
+tap "atlassian/homebrew-acli"
+
+# Setup
+brew "stow"
+brew "just"
+brew "bun"
+
+# Shell
+brew "tmux"
+brew "tpm"
+brew "fzf"
+brew "fd"
+brew "zoxide"
+brew "eza"
+brew "bat"
+brew "btop"
+brew "ripgrep"
+brew "jq"
+brew "wget"
+brew "fastfetch"
+brew "yazi"
+brew "mediainfo"
+brew "zsh-autosuggestions"
+brew "zsh-syntax-highlighting"
+brew "zsh-vi-mode"
+brew "pure"
+brew "fzf-tab"
+
+# Git and review
+brew "git"
+brew "gh"
+brew "lazygit"
+brew "hunk"
+
+# Editor and language servers
+brew "neovim"
+brew "tree-sitter-cli"
+brew "lua-language-server"
+brew "biome"
+brew "oxfmt"
+brew "stylelint"
+brew "deno"
+brew "typescript"
+brew "typescript-language-server"
+brew "vscode-langservers-extracted"
+brew "tailwindcss-language-server"
+brew "bash-language-server"
+brew "stylua"
+brew "luacheck"
+brew "shellcheck"
+brew "shfmt"
+brew "eslint_d"
+
+# Coding agents
+brew "herdr"
+brew "opencode"
+brew "agent-browser"
+cask "claude-code"
+
+# Dev tools
+brew "lazydocker"
+brew "docker-compose"
+brew "watchman"
+brew "wireguard-tools"
+brew "cmake"
+brew "make"
+brew "rustup"
+brew "redis"
+brew "maven"
+brew "azure-cli"
+brew "atlassian/homebrew-acli/acli"
+
+# Window management
+cask "nikitabobko/tap/aerospace"
+brew "felixkratz/formulae/borders"
+
+# System
+brew "pam-reattach"
+
+# Apps
+cask "ghostty"
+cask "spotify"
+brew "spicetify-cli"
+cask "karabiner-elements"
+cask "docker-desktop"
+cask "google-chrome"
+cask "slack"
+cask "figma"
+cask "postman"
+cask "zoom"
+cask "openvpn-connect"
+cask "handy"
+cask "1password"
+cask "1password-cli"
+
+# Fonts
+cask "font-inter"
+cask "font-fira-sans"
+cask "font-open-sans"
+cask "font-geist"
+cask "font-geist-mono"
+cask "font-ubuntu-sans"
+cask "font-hack-nerd-font"
+cask "font-fira-code-nerd-font"
+cask "font-ubuntu-sans-nerd-font"
+cask "font-jetbrains-mono-nerd-font"
