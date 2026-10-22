@@ -25,8 +25,7 @@
       "Glob(*)",
       "Grep(*)",
       "WebFetch",
-      "WebSearch",
-      "Skill(figma:*)"
+      "WebSearch"
     ],
     "deny": [
       "EnterPlanMode",
@@ -40,8 +39,7 @@
       "AskUserQuestion",
       "CronCreate",
       "CronDelete",
-      "CronList",
-      "mcp__plugin_figma_figma"
+      "CronList"
     ]
   },
   "skipDangerousModePermissionPrompt": true,
