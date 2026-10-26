@@ -8,6 +8,7 @@
 ^/\.stowrc
 ^/\.stow-local-ignore
 ^/\.stylua\.toml
+^/\.claude
 ^/\.luacheckrc
 ^/Brewfile
 ^/justfile

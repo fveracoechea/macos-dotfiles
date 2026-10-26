@@ -58,10 +58,6 @@
       "rev": "6141a40173c6efa98242dc951ed4b6f892c97027",
       "src": "https://github.com/JoosepAlviste/nvim-ts-context-commentstring"
     },
-    "opencode.nvim": {
-      "rev": "4d3580a0ebb060cfdd41fa93784a046706a728cf",
-      "src": "https://github.com/nickjvandyke/opencode.nvim"
-    },
     "plenary.nvim": {
       "rev": "74b06c6c75e4eeb3108ec01852001636d85a932b",
       "src": "https://github.com/nvim-lua/plenary.nvim"

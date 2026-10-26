@@ -16,5 +16,5 @@ jobs:
       - name: Install the check tools
         env:
           HOMEBREW_NO_AUTO_UPDATE: "1"
-        run: brew install just stow shellcheck stylua luacheck
+        run: brew install just stow shellcheck stylua luacheck jq check-jsonschema opencode herdr
       - run: just check

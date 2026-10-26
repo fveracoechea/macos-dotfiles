@@ -50,13 +50,13 @@ brew "stylua"
 brew "luacheck"
 brew "shellcheck"
 brew "shfmt"
+brew "check-jsonschema"
 brew "eslint_d"
 
 # Coding agents
 brew "herdr"
 brew "opencode"
 brew "agent-browser"
-cask "claude-code"
 
 # Dev tools
 brew "lazydocker"

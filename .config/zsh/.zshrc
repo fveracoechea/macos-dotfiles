@@ -73,7 +73,6 @@ fi
 alias ..='cd ..'
 alias c=clear
 alias cat=bat
-alias cc='claude --dangerously-skip-permissions'
 alias cd=z
 alias e=exit
 alias la='eza -abghHl --no-user --icons'

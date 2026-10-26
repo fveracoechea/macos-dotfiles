@@ -28,7 +28,7 @@ setup: hunk-gh skills
     # The Ghostty syntax ships inside Ghostty.app. Stow refuses absolute links.
     ln -sf /Applications/Ghostty.app/Contents/Resources/bat/syntaxes/ghostty.sublime-syntax ~/.config/bat/syntaxes/
     bat cache --build
-    herdr integration install claude
+    # cli.json already registers ./herdr-opencode, so the installer writes only its own files.
     herdr integration install opencode
     ya pkg install
     "$(brew --prefix)/opt/tpm/share/tpm/bin/install_plugins"
@@ -46,11 +46,11 @@ hunk-gh:
     git -C "$dir" fetch --quiet origin
     git -C "$dir" checkout --quiet --detach bdf6f9613f575b286d3af6edafc733249e933ddf
 
-# Agent skills for Claude Code and OpenCode. herdr installs its own skill.
+# Agent skills for OpenCode. herdr installs its own skill.
 skills:
-    bunx skills add -g anthropics/skills --skill frontend-design -a claude-code -a opencode -y
-    bunx skills add -g fveracoechea/operator --skill no-slop --skill pr-review -a claude-code -a opencode -y
-    bunx skills add -g modem-dev/hunk --skill hunk-review -a claude-code -a opencode -y
+    bunx skills add -g anthropics/skills --skill frontend-design -a opencode -y
+    bunx skills add -g fveracoechea/operator --skill no-slop --skill pr-review -a opencode -y
+    bunx skills add -g modem-dev/hunk --skill hunk-review -a opencode -y
 
 # Theme Spotify. Run it again after each Spotify update.
 spotify:
@@ -66,7 +66,7 @@ wallpaper file:
     osascript -e 'tell application "System Events" to tell every desktop to set picture to POSIX file "{{ justfile_directory() }}/wallpapers/{{ file }}"'
 
 # Run every repo check. CI runs this same recipe.
-check: check-stow check-ssh check-agents check-shell check-lua
+check: check-stow check-ssh check-agents check-shell check-lua check-opencode
 
 # Stow into an empty home. This catches conflicts, and repo-only files
 # that .stow-local-ignore misses.
@@ -76,7 +76,7 @@ check-stow:
     home="$(mktemp -d)"
     trap 'rm -rf "$home"' EXIT
     stow --target="$home" .
-    allowed=" .claude .config .ssh .zshenv OPINIONS.md bin "
+    allowed=" .config .ssh .zshenv OPINIONS.md bin "
     status=0
     for entry in $(ls -A "$home"); do
       if [[ $allowed != *" $entry "* ]]; then
@@ -88,6 +88,10 @@ check-stow:
     if [[ -n $folded ]]; then
       echo "error: stow linked whole directories. Keep --no-folding in .stowrc:" >&2
       echo "$folded" >&2
+      status=1
+    fi
+    if [[ "$(realpath "$home/.config/opencode/AGENTS.md")" != "$(realpath agents/AGENTS.md)" ]]; then
+      echo "error: ~/.config/opencode/AGENTS.md does not resolve to agents/AGENTS.md." >&2
       status=1
     fi
     exit "$status"
@@ -103,23 +107,80 @@ check-ssh:
       exit 1
     fi
 
-# Both agents read agents/AGENTS.md. A plain copy would drift.
+# OpenCode reads agents/AGENTS.md through a link. A plain copy would drift.
 check-agents:
     #!/usr/bin/env bash
     set -euo pipefail
-    target="$(realpath agents/AGENTS.md)"
-    status=0
-    for link in .claude/CLAUDE.md .config/opencode/AGENTS.md; do
-      if [[ ! -L $link || "$(realpath "$link")" != "$target" ]]; then
-        echo "error: $link must be a symlink to agents/AGENTS.md." >&2
-        status=1
-      fi
-    done
-    exit "$status"
+    link=.config/opencode/AGENTS.md
+    if [[ ! -L $link || "$(realpath "$link")" != "$(realpath agents/AGENTS.md)" ]]; then
+      echo "error: $link must be a symlink to agents/AGENTS.md." >&2
+      exit 1
+    fi
 
 check-shell:
-    shellcheck macos/*.sh .config/borders/bordersrc .claude/statusline.sh
+    shellcheck macos/*.sh .config/borders/bordersrc
 
 check-lua:
     stylua --check .config/nvim
     luacheck .config/nvim
+
+# OpenCode drops a setting it does not know with no warning, so the schemas
+# catch typos. Then the installed OpenCode and herdr run against the stowed
+# config in an empty home, the way `just install` runs them.
+check-opencode:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    version="$(opencode --version)"
+    if [[ $version != "opencode v2."* ]]; then
+      echo "error: $version is not OpenCode v2. Run brew upgrade opencode." >&2
+      exit 1
+    fi
+    for file in .config/opencode/opencode.json .config/opencode/cli.json; do
+      check-jsonschema --schemafile "$(jq -r '.["$schema"]' "$file")" "$file"
+    done
+    home="$(mktemp -d)"
+    trap 'rm -rf "$home"' EXIT
+    stow --target="$home" .
+    isolated=(env -i PATH="$PATH" HOME="$home" XDG_CONFIG_HOME="$home/.config"
+      XDG_STATE_HOME="$home/.local/state" XDG_DATA_HOME="$home/.local/share" XDG_CACHE_HOME="$home/.cache")
+    cli="$home/.config/opencode/cli.json"
+    before="$(shasum .config/opencode/cli.json)"
+    # Twice, because setup must converge when it runs again.
+    "${isolated[@]}" herdr integration install opencode >/dev/null
+    "${isolated[@]}" herdr integration install opencode >/dev/null
+    status=0
+    if [[ ! -L $cli ]]; then
+      echo "error: herdr replaced the cli.json link with a file." >&2
+      status=1
+    fi
+    if [[ "$(shasum .config/opencode/cli.json)" != "$before" ]]; then
+      echo "error: herdr changed .config/opencode/cli.json. Add its change to the repo:" >&2
+      git diff -- .config/opencode/cli.json >&2
+      status=1
+    fi
+    if [[ "$(jq '[.plugins[] | select(. == "./herdr-opencode")] | length' "$cli")" != 1 ]]; then
+      echo "error: cli.json must register ./herdr-opencode once." >&2
+      status=1
+    fi
+    log="$home/opencode.log"
+    loaded="$(cd "$home" && "${isolated[@]}" opencode api --standalone config.get --print-logs 2>"$log")"
+    if grep -E 'level=(WARN|ERROR|FATAL)' "$log" >&2; then
+      echo "error: OpenCode warned when it loaded opencode.json." >&2
+      status=1
+    fi
+    if ! jq -e '
+      [.[] | select(.type == "document") | .info][0]
+      | .agents.build.model.variant == "high"
+        and .providers.openai.models["gpt-6.1-sol"].variants[0].id == "high"
+        and .providers.openrouter.models["z-ai/glm-5.3-flash"].variants[0].id == "high"
+        and .permissions == [{action: "*", resource: "*", effect: "allow"}]
+        and .providers.openrouter.body.provider == {
+          sort: "throughput", only: ["baseten", "novita", "fireworks"],
+          allow_fallbacks: true, data_collection: "deny", zdr: true
+        }
+        and .websearch.provider == "exa"
+    ' <<<"$loaded" >/dev/null; then
+      echo "error: OpenCode did not load the expected settings from opencode.json." >&2
+      status=1
+    fi
+    exit "$status"
