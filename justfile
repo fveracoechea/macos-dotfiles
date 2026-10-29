@@ -1,5 +1,9 @@
 set shell := ["bash", "-euo", "pipefail", "-c"]
 
+# Operator owns the global agent instructions. Upgrade this pin on a schedule.
+operator_rev := "fc21724c3ce457d20b00f9a168e2a8d59c60b8f6"
+agents_url := "https://raw.githubusercontent.com/fveracoechea/operator/" + operator_rev + "/agents/AGENTS.md"
+
 # List the recipes.
 default:
     @just --list
@@ -24,7 +28,7 @@ bun-globals:
     bun add -g graphql-language-service-cli@3.5.0 @stylelint/language-server@1.1.1 oxlint@1.88.0
 
 # Setup that reads the stowed config. Each step is safe to run again.
-setup: hunk-gh skills
+setup: hunk-gh skills agents
     # The Ghostty syntax ships inside Ghostty.app. Stow refuses absolute links.
     ln -sf /Applications/Ghostty.app/Contents/Resources/bat/syntaxes/ghostty.sublime-syntax ~/.config/bat/syntaxes/
     bat cache --build
@@ -49,8 +53,20 @@ hunk-gh:
 # Agent skills for OpenCode. herdr installs its own skill.
 skills:
     bunx skills add -g anthropics/skills --skill frontend-design -a opencode -y
-    bunx skills add -g fveracoechea/operator --skill no-slop --skill pr-review -a opencode -y
+    bunx skills add -g fveracoechea/operator --skill no-slop --skill pr-review --skill my-opinions -a opencode -y
     bunx skills add -g modem-dev/hunk --skill hunk-review -a opencode -y
+
+# The global agent instructions from Operator, at the pinned commit.
+agents:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    file="$HOME/.config/opencode/AGENTS.md"
+    tmp="$(mktemp "$file.XXXXXX")"
+    trap 'rm -f "$tmp"' EXIT
+    curl -fsSL "{{ agents_url }}" -o "$tmp"
+    chmod 644 "$tmp"
+    # mv replaces an old link. A write through the link would change its target.
+    mv -f "$tmp" "$file"
 
 # Theme Spotify. Run it again after each Spotify update.
 spotify:
@@ -76,7 +92,7 @@ check-stow:
     home="$(mktemp -d)"
     trap 'rm -rf "$home"' EXIT
     stow --target="$home" .
-    allowed=" .config .ssh .zshenv OPINIONS.md bin "
+    allowed=" .config .ssh .zshenv bin "
     status=0
     for entry in $(ls -A "$home"); do
       if [[ $allowed != *" $entry "* ]]; then
@@ -88,10 +104,6 @@ check-stow:
     if [[ -n $folded ]]; then
       echo "error: stow linked whole directories. Keep --no-folding in .stowrc:" >&2
       echo "$folded" >&2
-      status=1
-    fi
-    if [[ "$(realpath "$home/.config/opencode/AGENTS.md")" != "$(realpath agents/AGENTS.md)" ]]; then
-      echo "error: ~/.config/opencode/AGENTS.md does not resolve to agents/AGENTS.md." >&2
       status=1
     fi
     exit "$status"
@@ -107,15 +119,33 @@ check-ssh:
       exit 1
     fi
 
-# OpenCode reads agents/AGENTS.md through a link. A plain copy would drift.
+# Operator owns the agent instructions and the opinions. A copy here would
+# drift. Each skill that the pinned AGENTS.md loads must be installed.
 check-agents:
     #!/usr/bin/env bash
     set -euo pipefail
-    link=.config/opencode/AGENTS.md
-    if [[ ! -L $link || "$(realpath "$link")" != "$(realpath agents/AGENTS.md)" ]]; then
-      echo "error: $link must be a symlink to agents/AGENTS.md." >&2
-      exit 1
+    status=0
+    copies="$(git ls-files -- '*AGENTS.md' '*OPINIONS.md')"
+    if [[ -n $copies ]]; then
+      echo "error: Operator owns these files. Edit them there and remove:" >&2
+      echo "$copies" >&2
+      status=1
     fi
+    agents="$(curl -fsSL "{{ agents_url }}")"
+    named="$(grep -o 'the `[a-z-]*` skill' <<<"$agents" | cut -d'`' -f2)"
+    if [[ -z $named ]]; then
+      echo "error: the pinned AGENTS.md names no skill. Update this check." >&2
+      status=1
+    fi
+    # herdr installs its own skill.
+    installed=" herdr $(just --show skills | grep -o -- '--skill [a-z-]*' | cut -d' ' -f2 | tr '\n' ' ')"
+    for name in $named; do
+      if [[ $installed != *" $name "* ]]; then
+        echo "error: the pinned AGENTS.md loads the $name skill. Install it in the skills recipe." >&2
+        status=1
+      fi
+    done
+    exit "$status"
 
 check-shell:
     shellcheck macos/*.sh .config/borders/bordersrc

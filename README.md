@@ -10,11 +10,19 @@ The migration plan and the cutover steps are in [fveracoechea/dotfiles#47](https
 The repo root mirrors `$HOME`, so `stow .` links everything in one command.
 `.stowrc` sets `--target=~` and `--no-folding`.
 With `--no-folding`, stow links files, not directories, so apps that write state into their config directory do not write into the repo.
-`.stow-local-ignore` keeps the repo-only files out of `~`: `Brewfile`, `justfile`, `agents/`, `macos/`, `wallpapers/`, and the lint configs.
+`.stow-local-ignore` keeps the repo-only files out of `~`: `Brewfile`, `justfile`, `macos/`, `wallpapers/`, and the lint configs.
 It also ignores `.claude/`, because a Claude Code session in this repo writes local settings there.
 
-`agents/AGENTS.md` is the one real copy of the global agent instructions.
-`.config/opencode/AGENTS.md` is a relative symlink to it.
+## Agent instructions
+
+[fveracoechea/operator](https://github.com/fveracoechea/operator) owns the global agent instructions and the opinions.
+Edit them in Operator, not here.
+
+- `just agents` writes `agents/AGENTS.md` from Operator to `~/.config/opencode/AGENTS.md`. It uses the commit in `operator_rev` at the top of the `justfile`.
+- `just skills` installs the `my-opinions` skill from Operator. It replaces `~/OPINIONS.md`.
+- `just check-agents` fails if the repo has a copy of either file, or if the pinned `AGENTS.md` loads a skill that `just skills` does not install.
+
+To take a new Operator version, change `operator_rev`, run `just check-agents`, and run `just agents`.
 
 ## OpenCode
 
