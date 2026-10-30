@@ -24,22 +24,39 @@
         "id": "5a092711-4419-4d21-a9a0-67c6279d8210",
         "type": "context-bar",
         "color": "cyan"
+      },
+      {
+        "id": "5bc23e8e-7f46-4ac1-a330-c2cb35dade48",
+        "type": "separator"
+      },
+      {
+        "id": "d392d75a-cbbd-44f9-a304-edaa8be9e3a1",
+        "type": "session-usage",
+        "color": "yellow"
       }
     ],
     [
       {
-        "id": "281395fd-4eaa-474f-8c2b-0b8773e2e1b5",
-        "type": "git-worktree",
-        "color": "yellow"
+        "id": "7df37bd4-1fca-4df1-bd47-f150fb3f0fda",
+        "type": "worktree-name",
+        "color": "white"
       },
       {
-        "id": "c49b370a-c0b5-48ee-8039-d4bbb48f9d84",
+        "id": "7293bba3-919b-4ff5-88c5-1e6518255f14",
         "type": "separator"
       },
       {
-        "id": "88c67ba7-a049-40c1-94d1-0370ede04fe2",
-        "type": "git-changes",
-        "color": "green"
+        "id": "dada9cc5-afc3-415b-acb4-5f9fb86b164a",
+        "type": "worktree-branch",
+        "color": "brightBlue"
+      },
+      {
+        "id": "dc5a27ce-b596-4dca-8485-d531af385fca",
+        "type": "separator"
+      },
+      {
+        "id": "5e61b2ab-a5fe-4ac8-89ff-17aae220c4b8",
+        "type": "git-changes"
       },
       {
         "id": "f81fb833-5c68-4bcc-ab75-eb93bf78e637",
@@ -62,7 +79,7 @@
   "gitCacheTtlSeconds": 5,
   "terminalWidthCacheTtlSeconds": 5,
   "customCommandCacheTtlSeconds": 0,
-  "minimalistMode": true,
+  "minimalistMode": false,
   "powerline": {
     "enabled": false,
     "separators": [
