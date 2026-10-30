@@ -232,12 +232,7 @@ check-opencode:
       [.[] | select(.type == "document") | .info][0]
       | .agents.build.model.variant == "high"
         and .providers.openai.models["gpt-6.1-sol"].variants[0].id == "high"
-        and .providers.openrouter.models["z-ai/glm-5.3-flash"].variants[0].id == "high"
         and .permissions == [{action: "*", resource: "*", effect: "allow"}]
-        and .providers.openrouter.body.provider == {
-          sort: "throughput", only: ["baseten", "novita", "fireworks"],
-          allow_fallbacks: true, data_collection: "deny", zdr: true
-        }
         and .websearch.provider == "exa"
     ' <<<"$loaded" >/dev/null; then
       echo "error: OpenCode did not load the expected settings from opencode.json." >&2

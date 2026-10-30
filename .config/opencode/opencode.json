@@ -59,40 +59,6 @@
           ]
         }
       }
-    },
-    "openrouter": {
-      "body": {
-        "provider": {
-          "allow_fallbacks": true,
-          "data_collection": "deny",
-          "only": [
-            "baseten",
-            "novita",
-            "fireworks"
-          ],
-          "sort": "throughput",
-          "zdr": true
-        }
-      },
-      "models": {
-        "z-ai/glm-5.3-flash": {
-          "settings": {
-            "reasoning": {
-              "effort": "high"
-            }
-          },
-          "variants": [
-            {
-              "id": "high",
-              "settings": {
-                "reasoning": {
-                  "effort": "high"
-                }
-              }
-            }
-          ]
-        }
-      }
     }
   },
   "update": "disable",
