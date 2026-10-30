@@ -84,6 +84,7 @@ Each setup step is safe to run again.
 
 | Recipe | What it does |
 | --- | --- |
+| `just upgrade` | Upgrades the Brewfile packages, then installs the latest hunk, herdr, and frontend-design skills. |
 | `just restow` | Links new files and removes stale links. |
 | `just unstow` | Removes every link. |
 | `just bun-globals` | Installs the npm-only tools at pinned versions. |

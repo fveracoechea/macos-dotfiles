@@ -22,7 +22,8 @@ brew:
     brew bundle --file=Brewfile
 
 # Upgrade every Brewfile package. Casks that update themselves are skipped.
-upgrade:
+# Then reinstall the skills, so the herdr skill matches the new herdr.
+upgrade: && skills
     brew update
     brew bundle --file=Brewfile
     brew cleanup
@@ -64,10 +65,14 @@ hunk-gh:
     git -C "$dir" fetch --quiet origin
     git -C "$dir" checkout --quiet --detach bdf6f9613f575b286d3af6edafc733249e933ddf
 
-# Agent skills for Claude Code and OpenCode. herdr and Operator install their own skills.
+# Agent skills for Claude Code and OpenCode. Operator installs its own skills.
 skills:
     bunx skills add -g anthropics/skills --skill frontend-design -a claude-code -a opencode -y
     bunx skills add -g modem-dev/hunk --skill hunk-review -a claude-code -a opencode -y
+    # herdr prints its skill and does not install it.
+    mkdir -p "$HOME/.claude/skills/herdr" "$XDG_CONFIG_HOME/opencode/skills/herdr"
+    herdr --skill >"$HOME/.claude/skills/herdr/SKILL.md"
+    herdr --skill >"$XDG_CONFIG_HOME/opencode/skills/herdr/SKILL.md"
 
 # Operator at the pinned release, with its skills and its Herdr plugin.
 operator:
@@ -175,9 +180,11 @@ check-agents:
       echo "error: the pinned AGENTS.md names no skill. Update this check." >&2
       status=1
     fi
-    # herdr installs its own skill, and just operator installs each skill in the release.
+    # just skills names each skill with --skill or writes it to skills/<name>/SKILL.md.
+    # just operator installs each skill in the release.
     release="$(curl -fsSL "{{ operator_release }}_meta.json" | jq -r '.manifest | keys[]' | sed -nE 's#^/skills/([^/]+)/SKILL\.md$#\1#p')"
-    installed=" herdr $(just --show skills | grep -o -- '--skill [a-z-]*' | cut -d' ' -f2) $release "
+    recipe="$(just --show skills | grep -oE -- '--skill [a-z-]+|/skills/[a-z-]+/SKILL\.md' | sed -E 's#^--skill ##; s#^/skills/##; s#/SKILL\.md$##')"
+    installed=" $recipe $release "
     installed="$(tr '\n' ' ' <<<"$installed")"
     for name in $named; do
       if [[ $installed != *" $name "* ]]; then
