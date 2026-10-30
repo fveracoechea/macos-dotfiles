@@ -13,16 +13,26 @@ With `--no-folding`, stow links files, not directories, so apps that write state
 `.stow-local-ignore` keeps the repo-only files out of `~`: `Brewfile`, `justfile`, `macos/`, `wallpapers/`, and the lint configs.
 It also ignores `.claude/`, because a Claude Code session in this repo writes local settings there.
 
-## Agent instructions
+## Operator
 
-[fveracoechea/operator](https://github.com/fveracoechea/operator) owns the global agent instructions and the opinions.
-Edit them in Operator, not here.
+[fveracoechea/operator](https://github.com/fveracoechea/operator) owns the global agent instructions, the opinions, and the Operator CLI.
+Edit the instructions and the skills in Operator, not here.
+`operator_version` at the top of the `justfile` pins one Operator release for all of them.
 
-- `just agents` writes `agents/AGENTS.md` from Operator to `~/.config/opencode/AGENTS.md`. It uses the commit in `operator_rev` at the top of the `justfile`.
-- `just skills` installs the `my-opinions` skill from Operator. It replaces `~/OPINIONS.md`.
-- `just check-agents` fails if the repo has a copy of either file, or if the pinned `AGENTS.md` loads a skill that `just skills` does not install.
+- `just operator` installs the release from JSR and writes the `operator` command to `~/.bun/bin`.
+  It installs the Operator skills, `my-opinions` included, for every OpenCode project in `~/.config/opencode/skills`.
+  It also installs Matt Pocock's skills in `~/.agents/skills`, because `operator ready` requires them.
+  Then it links the Operator Herdr plugin and sets OpenCode as the SuperAgent host.
+- Every Operator command needs a registered project, so `just operator` registers this checkout.
+- `just agents` writes `agents/AGENTS.md` from the commit of the pinned release to `~/.config/opencode/AGENTS.md`.
+- `just check-agents` fails if the repo has a copy of `AGENTS.md` or `OPINIONS.md`, or if the pinned `AGENTS.md` loads a skill that no recipe installs.
 
-To take a new Operator version, change `operator_rev`, run `just check-agents`, and run `just agents`.
+`.config/.bunfig.toml` maps the `@jsr` scope to the JSR registry.
+Bun reads this file, not `~/.bunfig.toml`, because `.zshenv` sets `XDG_CONFIG_HOME`.
+`.zshenv` also sets `BUN_INSTALL` to `~/.bun`. Without it, Bun puts global packages under `XDG_CACHE_HOME`, which is not on `PATH`.
+
+After `gh auth login`, run `operator ready --json` to check the install.
+To take a new Operator release, change `operator_version`, run `just check-agents`, and run `just operator agents`.
 
 ## OpenCode
 
@@ -64,6 +74,8 @@ Each setup step is safe to run again.
 | `just restow` | Links new files and removes stale links. |
 | `just unstow` | Removes every link. |
 | `just bun-globals` | Installs the npm-only tools at pinned versions. |
+| `just operator` | Installs the pinned Operator release, its skills, and its Herdr plugin. |
+| `just agents` | Writes the global agent instructions from the pinned Operator release. |
 | `just spotify` | Applies the spicetify theme. Run it again after each Spotify update. |
 | `just wallpaper <file>` | Sets the desktop picture to a file in `wallpapers/`. |
 | `just check` | Runs the repo checks. CI runs this same recipe. |

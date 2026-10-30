@@ -1,8 +1,15 @@
 set shell := ["bash", "-euo", "pipefail", "-c"]
 
-# Operator owns the global agent instructions. Upgrade this pin on a schedule.
-operator_rev := "fc21724c3ce457d20b00f9a168e2a8d59c60b8f6"
-agents_url := "https://raw.githubusercontent.com/fveracoechea/operator/" + operator_rev + "/agents/AGENTS.md"
+# The zsh config sets these too. A first `just install` runs in a shell that
+# started before stow, and Bun puts global packages under XDG_CACHE_HOME
+# when BUN_INSTALL is not set.
+export XDG_CONFIG_HOME := env("XDG_CONFIG_HOME", home_directory() / ".config")
+export BUN_INSTALL := env("BUN_INSTALL", home_directory() / ".bun")
+
+# Operator ships the CLI, the skills, and the global agent instructions.
+# Upgrade this pin on a schedule.
+operator_version := "1.0.1"
+operator_release := "https://jsr.io/@fveracoechea/operator/" + operator_version
 
 # List the recipes.
 default:
@@ -28,7 +35,7 @@ bun-globals:
     bun add -g graphql-language-service-cli@3.5.0 @stylelint/language-server@1.1.1 oxlint@1.88.0
 
 # Setup that reads the stowed config. Each step is safe to run again.
-setup: hunk-gh skills agents
+setup: hunk-gh skills operator agents
     # The Ghostty syntax ships inside Ghostty.app. Stow refuses absolute links.
     ln -sf /Applications/Ghostty.app/Contents/Resources/bat/syntaxes/ghostty.sublime-syntax ~/.config/bat/syntaxes/
     bat cache --build
@@ -50,20 +57,40 @@ hunk-gh:
     git -C "$dir" fetch --quiet origin
     git -C "$dir" checkout --quiet --detach bdf6f9613f575b286d3af6edafc733249e933ddf
 
-# Agent skills for OpenCode. herdr installs its own skill.
+# Agent skills for OpenCode. herdr and Operator install their own skills.
 skills:
     bunx skills add -g anthropics/skills --skill frontend-design -a opencode -y
-    bunx skills add -g fveracoechea/operator --skill no-slop --skill pr-review --skill my-opinions -a opencode -y
     bunx skills add -g modem-dev/hunk --skill hunk-review -a opencode -y
 
-# The global agent instructions from Operator, at the pinned commit.
+# Operator at the pinned release, with its skills and its Herdr plugin.
+operator:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    # .config/.bunfig.toml maps the @jsr scope to the JSR registry.
+    bun add -g --exact "@fveracoechea/operator@npm:@jsr/fveracoechea__operator@{{ operator_version }}"
+    cli="$(bun pm ls -g | head -n 1 | sed 's/ node_modules (.*//')/node_modules/@fveracoechea/operator/cli.js"
+    # Every Operator command refuses until a project is registered. This checkout is the first one.
+    bun "$cli" project register --json >/dev/null
+    bun "$cli" install launcher --json >/dev/null
+    operator="$(bun pm bin -g)/operator"
+    "$operator" install --opencode --json >/dev/null
+    # operator ready requires Matt Pocock's skills.
+    "$operator" install matt --opencode --json >/dev/null
+    "$operator" herdr install --json >/dev/null
+    plan="$("$operator" config plan --set superAgent.host=opencode --json)"
+    if [[ "$(jq -r .data.changed <<<"$plan")" == true ]]; then
+      "$operator" config apply --set superAgent.host=opencode --plan "$(jq -r .data.planId <<<"$plan")" --json >/dev/null
+    fi
+
+# The global agent instructions from the commit of the pinned Operator release.
 agents:
     #!/usr/bin/env bash
     set -euo pipefail
-    file="$HOME/.config/opencode/AGENTS.md"
+    commit="$(curl -fsSL "{{ operator_release }}/release.json" | jq -er .commit)"
+    file="$XDG_CONFIG_HOME/opencode/AGENTS.md"
     tmp="$(mktemp "$file.XXXXXX")"
     trap 'rm -f "$tmp"' EXIT
-    curl -fsSL "{{ agents_url }}" -o "$tmp"
+    curl -fsSL "https://raw.githubusercontent.com/fveracoechea/operator/$commit/agents/AGENTS.md" -o "$tmp"
     chmod 644 "$tmp"
     # mv replaces an old link. A write through the link would change its target.
     mv -f "$tmp" "$file"
@@ -131,17 +158,20 @@ check-agents:
       echo "$copies" >&2
       status=1
     fi
-    agents="$(curl -fsSL "{{ agents_url }}")"
+    commit="$(curl -fsSL "{{ operator_release }}/release.json" | jq -er .commit)"
+    agents="$(curl -fsSL "https://raw.githubusercontent.com/fveracoechea/operator/$commit/agents/AGENTS.md")"
     named="$(grep -o 'the `[a-z-]*` skill' <<<"$agents" | cut -d'`' -f2)"
     if [[ -z $named ]]; then
       echo "error: the pinned AGENTS.md names no skill. Update this check." >&2
       status=1
     fi
-    # herdr installs its own skill.
-    installed=" herdr $(just --show skills | grep -o -- '--skill [a-z-]*' | cut -d' ' -f2 | tr '\n' ' ')"
+    # herdr installs its own skill, and just operator installs each skill in the release.
+    release="$(curl -fsSL "{{ operator_release }}_meta.json" | jq -r '.manifest | keys[]' | sed -nE 's#^/skills/([^/]+)/SKILL\.md$#\1#p')"
+    installed=" herdr $(just --show skills | grep -o -- '--skill [a-z-]*' | cut -d' ' -f2) $release "
+    installed="$(tr '\n' ' ' <<<"$installed")"
     for name in $named; do
       if [[ $installed != *" $name "* ]]; then
-        echo "error: the pinned AGENTS.md loads the $name skill. Install it in the skills recipe." >&2
+        echo "error: the pinned AGENTS.md loads the $name skill, and no recipe installs it." >&2
         status=1
       fi
     done
