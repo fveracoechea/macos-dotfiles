@@ -18,7 +18,6 @@ vim.pack.add {
   "https://github.com/lewis6991/gitsigns.nvim",
   "https://github.com/stevearc/conform.nvim",
   "https://github.com/mistricky/codesnap.nvim",
-  "https://github.com/christoomey/vim-tmux-navigator",
   { src = "https://github.com/ChmaraX/herdr-nvim", version = "0450dc7b4c40c986052541c00dba5cdcd1be7ac6" },
 }
 

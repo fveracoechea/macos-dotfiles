@@ -73,6 +73,7 @@ fi
 alias ..='cd ..'
 alias c=clear
 alias cat=bat
+alias cc='claude --dangerously-skip-permissions'
 alias cd=z
 alias e=exit
 alias la='eza -abghHl --no-user --icons'
@@ -80,7 +81,6 @@ alias ll='eza -l'
 alias lla='eza -la'
 alias ls=eza
 alias lt='eza --tree'
-alias t='tmux new-session -A -s "$(basename "$PWD")"'
 alias vi=nvim
 alias vim=nvim
 alias vimdiff='nvim -d'

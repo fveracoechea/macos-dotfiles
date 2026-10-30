@@ -8,4 +8,3 @@ export BUN_INSTALL="$HOME/.bun"
 
 export EDITOR="nvim"
 export VISUAL="nvim"
-export FZF_TMUX="1"

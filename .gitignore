@@ -7,3 +7,4 @@
 # Machine-local files that live next to stowed config.
 /.config/zsh/secrets.zsh
 /.config/zsh/.zsh_history
+/.claude/settings.local.json

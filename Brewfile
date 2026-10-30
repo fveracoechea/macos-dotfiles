@@ -8,8 +8,6 @@ brew "just"
 brew "bun"
 
 # Shell
-brew "tmux"
-brew "tpm"
 brew "fzf"
 brew "fd"
 brew "zoxide"
@@ -57,6 +55,7 @@ brew "eslint_d"
 brew "herdr"
 brew "opencode"
 brew "agent-browser"
+cask "claude-code"
 
 # Dev tools
 brew "lazydocker"

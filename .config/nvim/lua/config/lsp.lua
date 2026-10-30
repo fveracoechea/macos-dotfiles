@@ -47,5 +47,7 @@ vim.lsp.enable {
   "relay_lsp",
   "stylelint_lsp",
   "tailwindcss",
-  "ts_ls",
+  -- TypeScript 7 ships its own server and no tsserver.js, so ts_ls cannot start.
+  -- nvim-lspconfig provides this config.
+  "tsc",
 }

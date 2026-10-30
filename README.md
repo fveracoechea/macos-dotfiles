@@ -11,7 +11,7 @@ The repo root mirrors `$HOME`, so `stow .` links everything in one command.
 `.stowrc` sets `--target=~` and `--no-folding`.
 With `--no-folding`, stow links files, not directories, so apps that write state into their config directory do not write into the repo.
 `.stow-local-ignore` keeps the repo-only files out of `~`: `Brewfile`, `justfile`, `macos/`, `wallpapers/`, and the lint configs.
-It also ignores `.claude/`, because a Claude Code session in this repo writes local settings there.
+It also ignores `.claude/settings.local.json`, because a Claude Code session in this repo writes local settings there.
 
 ## Operator
 
@@ -20,12 +20,12 @@ Edit the instructions and the skills in Operator, not here.
 `operator_version` at the top of the `justfile` pins one Operator release for all of them.
 
 - `just operator` installs the release from JSR and writes the `operator` command to `~/.bun/bin`.
-  It installs the Operator skills, `my-opinions` included, for every OpenCode project in `~/.config/opencode/skills`.
+  It installs the Operator skills, `my-opinions` included, for OpenCode in `~/.config/opencode/skills` and for Claude Code in `~/.claude/skills`.
   It also installs Matt Pocock's skills in `~/.agents/skills`, because `operator ready` requires them.
   Then it links the Operator Herdr plugin and sets OpenCode as the SuperAgent host.
 - Every Operator command needs a registered project, so `just operator` registers this checkout.
-- `just agents` writes `agents/AGENTS.md` from the commit of the pinned release to `~/.config/opencode/AGENTS.md`.
-- `just check-agents` fails if the repo has a copy of `AGENTS.md` or `OPINIONS.md`, or if the pinned `AGENTS.md` loads a skill that no recipe installs.
+- `just agents` writes `agents/AGENTS.md` from the commit of the pinned release to `~/.config/opencode/AGENTS.md` and `~/.claude/CLAUDE.md`.
+- `just check-agents` fails if the repo has a copy of `AGENTS.md`, `CLAUDE.md`, or `OPINIONS.md`, or if the pinned `AGENTS.md` loads a skill that no recipe installs.
 
 `.config/.bunfig.toml` maps the `@jsr` scope to the JSR registry.
 Bun reads this file, not `~/.bunfig.toml`, because `.zshenv` sets `XDG_CONFIG_HOME`.
@@ -54,6 +54,19 @@ The return of LSP is tracked in [anomalyco/opencode#38528](https://github.com/an
 The `lsp` list keeps only `nixd` and `typescript`, the same list as [fveracoechea/dotfiles](https://github.com/fveracoechea/dotfiles).
 This Mac has no `nixd`, so that entry stays inactive.
 For diagnostics, agents run the project lint and typecheck commands.
+
+## Claude Code
+
+Homebrew installs the `claude-code` cask.
+Stow links `settings.json`, `statusline.sh`, and the `lsp` plugin into `~/.claude`.
+`settings.json` is a link to the repo file, so a setting that Claude Code writes shows in `git diff`.
+`settings.json` already has the herdr `SessionStart` hook, so `herdr integration install claude` only writes its hook script.
+The hook command holds the absolute path of `~/.claude/hooks`, so change it if your home directory is different.
+The `cc` alias starts Claude Code with `--dangerously-skip-permissions`.
+
+Claude Code loads `~/.claude/skills/lsp` as a plugin, and `.lsp.json` lists its language servers.
+For TypeScript it runs `tsc --lsp --stdio`, the server built into TypeScript 7.
+`typescript-language-server` needs `tsserver.js`, and TypeScript 7 does not ship it.
 
 ## Install
 
@@ -86,34 +99,13 @@ Each setup step is safe to run again.
 
 ```sh
 git pull
-brew update
-brew bundle --file=Brewfile
-brew upgrade
+just upgrade
 just restow
 just setup
 ```
 
 After an OpenCode upgrade, quit every OpenCode process and start OpenCode in a new terminal.
 A process that is still running keeps the old config.
-
-### Remove Claude Code from an existing install
-
-Do these steps one time, before you pull the commit that removes Claude Code.
-They remove only the Claude Code package and the links that this repo made.
-Claude Code credentials, history, and the shared skills stay in place.
-
-```sh
-herdr integration uninstall claude
-git checkout -- .claude/settings.json   # herdr wrote its hook into the tracked file
-just unstow                             # while the old tree still lists the ~/.claude links
-git pull
-just stow
-brew uninstall --cask claude-code
-nvim --headless '+lua vim.pack.del({ "opencode.nvim" })' +qa
-```
-
-Then do the steps in [Update](#update).
-`stow` leaves the empty `~/.claude/skills/lsp` directories. Remove them with `find ~/.claude/skills/lsp -type d -empty -delete`.
 
 ## Manual steps
 

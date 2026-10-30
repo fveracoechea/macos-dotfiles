@@ -15,6 +15,10 @@ vim.keymap.set("n", "<C-a>", "ggVG", { desc = "Select All" })
 map("n", "<leader>\\", "<C-w>v", { desc = "Split window vertically" })
 map("n", "<leader>-", "<C-w>s", { desc = "Split window horizontally" })
 map("n", "<leader>se", "<C-w>=", { desc = "Make splits equal size" })
+map("n", "<C-h>", "<C-w>h", { desc = "Go to the left window" })
+map("n", "<C-j>", "<C-w>j", { desc = "Go to the window below" })
+map("n", "<C-k>", "<C-w>k", { desc = "Go to the window above" })
+map("n", "<C-l>", "<C-w>l", { desc = "Go to the right window" })
 
 -- ============================================================================
 -- PLUGIN MAPPINGS

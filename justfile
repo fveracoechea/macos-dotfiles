@@ -21,6 +21,12 @@ install: brew stow bun-globals setup
 brew:
     brew bundle --file=Brewfile
 
+# Upgrade every Brewfile package. Casks that update themselves are skipped.
+upgrade:
+    brew update
+    brew bundle --file=Brewfile
+    brew cleanup
+
 stow:
     stow .
 
@@ -41,8 +47,9 @@ setup: hunk-gh skills operator agents
     bat cache --build
     # cli.json already registers ./herdr-opencode, so the installer writes only its own files.
     herdr integration install opencode
+    # settings.json already has the herdr hook, so the installer writes only the hook script.
+    herdr integration install claude
     ya pkg install
-    "$(brew --prefix)/opt/tpm/share/tpm/bin/install_plugins"
     # Without a UI, the config waits until every plugin and parser is installed.
     nvim --headless +qa
     brew services start borders
@@ -57,10 +64,10 @@ hunk-gh:
     git -C "$dir" fetch --quiet origin
     git -C "$dir" checkout --quiet --detach bdf6f9613f575b286d3af6edafc733249e933ddf
 
-# Agent skills for OpenCode. herdr and Operator install their own skills.
+# Agent skills for Claude Code and OpenCode. herdr and Operator install their own skills.
 skills:
-    bunx skills add -g anthropics/skills --skill frontend-design -a opencode -y
-    bunx skills add -g modem-dev/hunk --skill hunk-review -a opencode -y
+    bunx skills add -g anthropics/skills --skill frontend-design -a claude-code -a opencode -y
+    bunx skills add -g modem-dev/hunk --skill hunk-review -a claude-code -a opencode -y
 
 # Operator at the pinned release, with its skills and its Herdr plugin.
 operator:
@@ -73,9 +80,9 @@ operator:
     bun "$cli" project register --json >/dev/null
     bun "$cli" install launcher --json >/dev/null
     operator="$(bun pm bin -g)/operator"
-    "$operator" install --opencode --json >/dev/null
+    "$operator" install --opencode --claude --json >/dev/null
     # operator ready requires Matt Pocock's skills.
-    "$operator" install matt --opencode --json >/dev/null
+    "$operator" install matt --opencode --claude --json >/dev/null
     "$operator" herdr install --json >/dev/null
     plan="$("$operator" config plan --set superAgent.host=opencode --json)"
     if [[ "$(jq -r .data.changed <<<"$plan")" == true ]]; then
@@ -87,13 +94,16 @@ agents:
     #!/usr/bin/env bash
     set -euo pipefail
     commit="$(curl -fsSL "{{ operator_release }}/release.json" | jq -er .commit)"
-    file="$XDG_CONFIG_HOME/opencode/AGENTS.md"
-    tmp="$(mktemp "$file.XXXXXX")"
-    trap 'rm -f "$tmp"' EXIT
-    curl -fsSL "https://raw.githubusercontent.com/fveracoechea/operator/$commit/agents/AGENTS.md" -o "$tmp"
-    chmod 644 "$tmp"
-    # mv replaces an old link. A write through the link would change its target.
-    mv -f "$tmp" "$file"
+    agents="$(curl -fsSL "https://raw.githubusercontent.com/fveracoechea/operator/$commit/agents/AGENTS.md")"
+    # OpenCode and Claude Code read the same instructions.
+    for file in "$XDG_CONFIG_HOME/opencode/AGENTS.md" "$HOME/.claude/CLAUDE.md"; do
+      mkdir -p "$(dirname "$file")"
+      tmp="$(mktemp "$file.XXXXXX")"
+      printf '%s\n' "$agents" >"$tmp"
+      chmod 644 "$tmp"
+      # mv replaces an old link. A write through the link would change its target.
+      mv -f "$tmp" "$file"
+    done
 
 # Theme Spotify. Run it again after each Spotify update.
 spotify:
@@ -119,7 +129,7 @@ check-stow:
     home="$(mktemp -d)"
     trap 'rm -rf "$home"' EXIT
     stow --target="$home" .
-    allowed=" .config .ssh .zshenv bin "
+    allowed=" .claude .config .ssh .zshenv bin "
     status=0
     for entry in $(ls -A "$home"); do
       if [[ $allowed != *" $entry "* ]]; then
@@ -152,7 +162,7 @@ check-agents:
     #!/usr/bin/env bash
     set -euo pipefail
     status=0
-    copies="$(git ls-files -- '*AGENTS.md' '*OPINIONS.md')"
+    copies="$(git ls-files -- '*AGENTS.md' '*CLAUDE.md' '*OPINIONS.md')"
     if [[ -n $copies ]]; then
       echo "error: Operator owns these files. Edit them there and remove:" >&2
       echo "$copies" >&2
