@@ -62,11 +62,15 @@
   "gitCacheTtlSeconds": 5,
   "terminalWidthCacheTtlSeconds": 5,
   "customCommandCacheTtlSeconds": 0,
-  "minimalistMode": false,
+  "minimalistMode": true,
   "powerline": {
     "enabled": false,
-    "separators": [""],
-    "separatorInvertBackground": [false],
+    "separators": [
+      ""
+    ],
+    "separatorInvertBackground": [
+      false
+    ],
     "startCaps": [],
     "endCaps": [],
     "autoAlign": false,
