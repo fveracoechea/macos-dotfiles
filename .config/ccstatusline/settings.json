@@ -1,0 +1,89 @@
+{
+  "version": 4,
+  "lines": [
+    [
+      {
+        "id": "cef9c0a7-a37f-41d0-a4e8-84db48fe29f2",
+        "type": "model",
+        "color": "brightBlue"
+      },
+      {
+        "id": "bf8596ab-5904-46a7-9ee9-6dd54129cf75",
+        "type": "separator"
+      },
+      {
+        "id": "58221d2e-e700-4593-9db8-4d9fb2c43966",
+        "type": "thinking-effort",
+        "color": "brightMagenta"
+      },
+      {
+        "id": "2",
+        "type": "separator"
+      },
+      {
+        "id": "5a092711-4419-4d21-a9a0-67c6279d8210",
+        "type": "context-bar",
+        "color": "brightCyan"
+      }
+    ],
+    [
+      {
+        "id": "48f4a06f-53c8-4ff4-bf55-eecbc89085eb",
+        "type": "git-branch",
+        "color": "brightYellow"
+      },
+      {
+        "id": "1e8624d9-9b24-496b-9d9c-4a7b374dc200",
+        "type": "separator"
+      },
+      {
+        "id": "281395fd-4eaa-474f-8c2b-0b8773e2e1b5",
+        "type": "git-worktree",
+        "color": "brightGreen"
+      },
+      {
+        "id": "b8ff735c-a631-45d2-85fb-de6318cb527a",
+        "type": "separator"
+      },
+      {
+        "id": "973e87a5-3279-44c8-916b-b67f5880c110",
+        "type": "git-review",
+        "color": "brightWhite"
+      },
+      {
+        "id": "c412d998-ffb9-41d4-ad25-d14779469122",
+        "type": "flex-separator"
+      },
+      {
+        "id": "4ddaa73a-6bca-485f-a37b-8a222b177340",
+        "type": "git-changes",
+        "color": "brightYellow"
+      }
+    ],
+    []
+  ],
+  "flexMode": "full",
+  "compactThreshold": 60,
+  "colorLevel": 3,
+  "defaultPaddingSide": "both",
+  "inheritSeparatorColors": false,
+  "globalBold": false,
+  "gitCacheTtlSeconds": 5,
+  "terminalWidthCacheTtlSeconds": 5,
+  "customCommandCacheTtlSeconds": 0,
+  "minimalistMode": false,
+  "powerline": {
+    "enabled": false,
+    "separators": [
+      ""
+    ],
+    "separatorInvertBackground": [
+      false
+    ],
+    "startCaps": [],
+    "endCaps": [],
+    "autoAlign": false,
+    "continueThemeAcrossLines": false
+  },
+  "exportedBy": "2.2.33"
+}
