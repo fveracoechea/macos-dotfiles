@@ -24,48 +24,48 @@
         "id": "5a092711-4419-4d21-a9a0-67c6279d8210",
         "type": "context-bar",
         "color": "cyan"
-      },
-      {
-        "id": "5bc23e8e-7f46-4ac1-a330-c2cb35dade48",
-        "type": "separator"
-      },
-      {
-        "id": "d392d75a-cbbd-44f9-a304-edaa8be9e3a1",
-        "type": "session-usage",
-        "color": "yellow"
       }
     ],
     [
       {
-        "id": "7df37bd4-1fca-4df1-bd47-f150fb3f0fda",
-        "type": "worktree-name",
-        "color": "white"
+        "id": "4692ab37-dda0-4643-824d-c6ef1182292b",
+        "type": "session-usage",
+        "color": "yellow"
       },
       {
         "id": "7293bba3-919b-4ff5-88c5-1e6518255f14",
         "type": "separator"
       },
       {
-        "id": "dada9cc5-afc3-415b-acb4-5f9fb86b164a",
-        "type": "worktree-branch",
-        "color": "brightBlue"
+        "id": "b6207ba1-b9da-4884-a978-7ab9366f4a07",
+        "type": "weekly-usage"
       },
       {
         "id": "dc5a27ce-b596-4dca-8485-d531af385fca",
         "type": "separator"
       },
       {
-        "id": "5e61b2ab-a5fe-4ac8-89ff-17aae220c4b8",
-        "type": "git-changes"
+        "id": "7aa08646-7318-4af6-822d-01a0ba95d57f",
+        "type": "output-speed",
+        "color": ""
       },
       {
-        "id": "f81fb833-5c68-4bcc-ab75-eb93bf78e637",
+        "id": "b7ff9e09-5a55-4467-a802-eb217eaef704",
         "type": "separator"
       },
       {
-        "id": "4265cdb5-8558-418e-be77-780c8be475c1",
-        "type": "git-review",
-        "color": ""
+        "id": "9f028291-0e4e-4817-ad41-bcc0e3b1760f",
+        "type": "extra-usage-remaining",
+        "color": "brightMagenta"
+      },
+      {
+        "id": "7c31abe6-b5fa-41c2-afb3-2f475a306b98",
+        "type": "flex-separator"
+      },
+      {
+        "id": "0859e08f-3a27-46e4-b1dc-c7e677d95d7a",
+        "type": "vim-mode",
+        "color": "yellow"
       }
     ],
     []
