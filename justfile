@@ -8,7 +8,7 @@ export BUN_INSTALL := env("BUN_INSTALL", home_directory() / ".bun")
 
 # Operator ships the CLI, the skills, and the global agent instructions.
 # Upgrade this pin on a schedule.
-operator_version := "1.0.1"
+operator_version := "1.1.0"
 operator_release := "https://jsr.io/@fveracoechea/operator/" + operator_version
 
 # List the recipes.
