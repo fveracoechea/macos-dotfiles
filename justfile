@@ -8,7 +8,7 @@ export BUN_INSTALL := env("BUN_INSTALL", home_directory() / ".bun")
 
 # Operator ships the CLI, the skills, and the global agent instructions.
 # Upgrade this pin on a schedule.
-operator_version := "1.1.0"
+operator_version := "2.1.1"
 operator_release := "https://jsr.io/@fveracoechea/operator/" + operator_version
 
 # List the recipes.
@@ -85,9 +85,8 @@ operator:
     bun "$cli" project register --json >/dev/null
     bun "$cli" install launcher --json >/dev/null
     operator="$(bun pm bin -g)/operator"
+    # This also installs the upstream skills that operator ready requires.
     "$operator" install --opencode --claude --json >/dev/null
-    # operator ready requires Matt Pocock's skills.
-    "$operator" install matt --opencode --claude --json >/dev/null
     "$operator" herdr install --json >/dev/null
     plan="$("$operator" config plan --set superAgent.host=opencode --json)"
     if [[ "$(jq -r .data.changed <<<"$plan")" == true ]]; then
