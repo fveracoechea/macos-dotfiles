@@ -11,6 +11,9 @@ export BUN_INSTALL := env("BUN_INSTALL", home_directory() / ".bun")
 operator_version := "2.1.1"
 operator_release := "https://jsr.io/@fveracoechea/operator/" + operator_version
 
+# The gh stack extension and its agent skill come from this release.
+gh_stack_version := "v0.2.1"
+
 # List the recipes.
 default:
     @just --list
@@ -42,7 +45,7 @@ bun-globals:
     bun add -g graphql-language-service-cli@3.5.0 @stylelint/language-server@1.1.1 oxlint@1.88.0
 
 # Setup that reads the stowed config. Each step is safe to run again.
-setup: hunk-gh skills operator agents
+setup: hunk-gh gh-stack skills operator agents
     # The Ghostty syntax ships inside Ghostty.app. Stow refuses absolute links.
     ln -sf /Applications/Ghostty.app/Contents/Resources/bat/syntaxes/ghostty.sublime-syntax ~/.config/bat/syntaxes/
     bat cache --build
@@ -65,10 +68,22 @@ hunk-gh:
     git -C "$dir" fetch --quiet origin
     git -C "$dir" checkout --quiet --detach bdf6f9613f575b286d3af6edafc733249e933ddf
 
+# The gh stack extension at the pinned release.
+gh-stack:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    installed="$(gh extension list | awk -F'\t' '$2 == "github/gh-stack" {print $3}')"
+    if [[ $installed != "{{ gh_stack_version }}" ]]; then
+      [[ -z $installed ]] || gh extension remove stack
+      gh extension install github/gh-stack --pin "{{ gh_stack_version }}"
+    fi
+
 # Agent skills for Claude Code and OpenCode. Operator installs its own skills.
 skills:
     bunx skills add -g anthropics/skills --skill frontend-design -a claude-code -a opencode -y
     bunx skills add -g modem-dev/hunk --skill hunk-review -a claude-code -a opencode -y
+    # The skill matches the pinned gh stack extension.
+    bunx skills add -g "github/gh-stack#{{ gh_stack_version }}" --skill gh-stack -a claude-code -a opencode -y
     # herdr prints its skill and does not install it.
     mkdir -p "$HOME/.claude/skills/herdr" "$XDG_CONFIG_HOME/opencode/skills/herdr"
     herdr --skill >"$HOME/.claude/skills/herdr/SKILL.md"
