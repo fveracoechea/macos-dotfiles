@@ -1,6 +1,7 @@
 tap "nikitabobko/tap"
 tap "felixkratz/formulae"
 tap "atlassian/homebrew-acli"
+tap "anomalyco/tap"
 
 # Setup
 brew "stow"
@@ -89,7 +90,7 @@ cask "figma"
 cask "postman"
 cask "zoom"
 cask "openvpn-connect"
-cask "handy"
+cask "anomalyco/tap/hex"
 cask "1password"
 cask "1password-cli"
 
