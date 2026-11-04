@@ -70,6 +70,17 @@ Claude Code loads `~/.claude/skills/lsp` as a plugin, and `.lsp.json` lists its 
 For TypeScript it runs `tsc --lsp --stdio`, the server built into TypeScript 7.
 `typescript-language-server` needs `tsserver.js`, and TypeScript 7 does not ship it.
 
+## MCP servers
+
+OpenCode connects globally to Slack, Datadog, and PostHog through `.config/opencode/opencode.json`, with Code Mode enabled by default.
+`just claude-mcp`, also run by `just setup`, adds missing user-wide Datadog and PostHog servers to Claude Code.
+It preserves existing entries and keeps `~/.claude.json`, which also contains machine-local state, out of Git.
+Claude Code's Slack connection comes from its enabled Slack plugin.
+
+Both clients use Datadog US1 with `toolsets=all` and the PostHog endpoint `https://mcp.posthog.com/mcp`.
+Authenticate separately in each client: `/mcps` in OpenCode, and `/mcp` in a new Claude Code session.
+OAuth credentials stay outside the repository.
+
 ## Install
 
 ```sh
@@ -92,6 +103,7 @@ Each setup step is safe to run again.
 | `just bun-globals` | Installs the npm-only tools at pinned versions. |
 | `just operator` | Installs the pinned Operator release, its skills, and its Herdr plugin. |
 | `just agents` | Writes the global agent instructions from the pinned Operator release. |
+| `just claude-mcp` | Adds missing user-wide Datadog and PostHog MCP servers to Claude Code. |
 | `just spotify` | Applies the spicetify theme. Run it again after each Spotify update. |
 | `just wallpaper <file>` | Sets the desktop picture to a file in `wallpapers/`. |
 | `just check` | Runs the repo checks. CI runs this same recipe. |

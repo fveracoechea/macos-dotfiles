@@ -45,7 +45,7 @@ bun-globals:
     bun add -g graphql-language-service-cli@3.5.0 @stylelint/language-server@1.1.1 oxlint@1.88.0
 
 # Setup that reads the stowed config. Each step is safe to run again.
-setup: hunk-gh gh-stack skills operator agents
+setup: hunk-gh gh-stack skills operator agents claude-mcp
     # The Ghostty syntax ships inside Ghostty.app. Stow refuses absolute links.
     ln -sf /Applications/Ghostty.app/Contents/Resources/bat/syntaxes/ghostty.sublime-syntax ~/.config/bat/syntaxes/
     bat cache --build
@@ -58,6 +58,11 @@ setup: hunk-gh gh-stack skills operator agents
     nvim --headless +qa
     brew services start borders
     open -a AeroSpace
+
+# Add missing user-wide MCP servers without replacing existing entries.
+claude-mcp:
+    claude mcp get datadog >/dev/null 2>&1 || claude mcp add --transport http --scope user datadog 'https://mcp.datadoghq.com/v1/mcp?toolsets=all'
+    claude mcp get posthog >/dev/null 2>&1 || claude mcp add --transport http --scope user posthog https://mcp.posthog.com/mcp
 
 # Hunk's own extension for `hunk gh`, at a pinned commit.
 hunk-gh:
