@@ -10,13 +10,14 @@ The migration plan and the cutover steps are in [fveracoechea/dotfiles#47](https
 The repo root mirrors `$HOME`, so `stow .` links everything in one command.
 `.stowrc` sets `--target=~` and `--no-folding`.
 With `--no-folding`, stow links files, not directories, so apps that write state into their config directory do not write into the repo.
-`.stow-local-ignore` keeps the repo-only files out of `~`: `Brewfile`, `justfile`, `macos/`, `wallpapers/`, and the lint configs.
+`.stow-local-ignore` keeps the repo-only files out of `~`: `AGENTS.md`, `Brewfile`, `justfile`, `macos/`, `wallpapers/`, and the lint configs.
 It also ignores `.claude/settings.local.json`, because a Claude Code session in this repo writes local settings there.
 
 ## Operator
 
 [fveracoechea/operator](https://github.com/fveracoechea/operator) owns the global agent instructions, the opinions, and the Operator CLI.
-Edit the instructions and the skills in Operator, not here.
+Edit the global instructions and skills in Operator, not here.
+The root `AGENTS.md` contains repository-specific quality checks and requires changes to be committed and pushed to `main`.
 `operator_version` at the top of the `justfile` pins one Operator release for all of them.
 
 - `just operator` installs the release from JSR and writes the `operator` command to `~/.bun/bin`.
@@ -25,7 +26,8 @@ Edit the instructions and the skills in Operator, not here.
   Then it links the Operator Herdr plugin and sets OpenCode as the SuperAgent host.
 - Every Operator command needs a registered project, so `just operator` registers this checkout.
 - `just agents` writes `agents/AGENTS.md` from the commit of the pinned release to `~/.config/opencode/AGENTS.md` and `~/.claude/CLAUDE.md`.
-- `just check-agents` fails if the repo has a copy of `AGENTS.md`, `CLAUDE.md`, or `OPINIONS.md`, or if the pinned `AGENTS.md` loads a skill that no recipe installs.
+- `just check-agents` allows the root `AGENTS.md` but rejects other tracked agent-instruction files or copies of Operator's opinions.
+  It also fails if the pinned global instructions load a skill that no recipe installs.
 
 `.config/.bunfig.toml` maps the `@jsr` scope to the JSR registry.
 Bun reads this file, not `~/.bunfig.toml`, because `.zshenv` sets `XDG_CONFIG_HOME`.

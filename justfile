@@ -175,15 +175,15 @@ check-ssh:
       exit 1
     fi
 
-# Operator owns the agent instructions and the opinions. A copy here would
-# drift. Each skill that the pinned AGENTS.md loads must be installed.
+# Operator owns the global instructions and opinions. Only the root AGENTS.md
+# is repo-specific. Each skill that the pinned instructions load must be installed.
 check-agents:
     #!/usr/bin/env bash
     set -euo pipefail
     status=0
-    copies="$(git ls-files -- '*AGENTS.md' '*CLAUDE.md' '*OPINIONS.md')"
+    copies="$(git ls-files -- '*AGENTS.md' '*CLAUDE.md' '*OPINIONS.md' ':(top,exclude)AGENTS.md')"
     if [[ -n $copies ]]; then
-      echo "error: Operator owns these files. Edit them there and remove:" >&2
+      echo "error: only the root AGENTS.md is repo-specific. Edit global instructions in Operator and remove:" >&2
       echo "$copies" >&2
       status=1
     fi
