@@ -266,7 +266,9 @@ check-opencode:
     fi
     if ! jq -e '
       [.[] | select(.type == "document") | .info][0]
-      | .agents.build.model.variant == "high"
+      | .model == {providerID: "claude-agent", model: "opus"}
+        and .agents.build.model == {providerID: "claude-agent", model: "opus", variant: "high"}
+        and .providers["claude-agent"].models.opus.settings.effort == "high"
         and .providers.openai.models["gpt-6.1-sol"].variants[0].id == "high"
         and .permissions == [{action: "*", resource: "*", effect: "allow"}]
         and .websearch.provider == "exa"

@@ -2,7 +2,8 @@
   "$schema": "https://opencode.ai/v2/cli.json",
   "animations": true,
   "diffs": {
-    "wrap": "word"
+    "wrap": "word",
+    "view": "unified"
   },
   "plugins": [
     "./herdr-opencode"
