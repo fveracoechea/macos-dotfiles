@@ -57,6 +57,16 @@
         "matcher": "^(startup|resume|clear|compact|fork)$"
       }
     ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "operator claude hook"
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Bash",

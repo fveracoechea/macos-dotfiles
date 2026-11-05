@@ -8,7 +8,7 @@ export BUN_INSTALL := env("BUN_INSTALL", home_directory() / ".bun")
 
 # Operator ships the CLI, the skills, and the global agent instructions.
 # Upgrade this pin on a schedule.
-operator_version := "2.1.1"
+operator_version := "2.2.0"
 operator_release := "https://jsr.io/@fveracoechea/operator/" + operator_version
 
 # The gh stack extension and its agent skill come from this release.
