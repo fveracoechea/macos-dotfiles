@@ -10,8 +10,30 @@ The migration plan and the cutover steps are in [fveracoechea/dotfiles#47](https
 The repo root mirrors `$HOME`, so `stow .` links everything in one command.
 `.stowrc` sets `--target=~` and `--no-folding`.
 With `--no-folding`, stow links files, not directories, so apps that write state into their config directory do not write into the repo.
-`.stow-local-ignore` keeps the repo-only files out of `~`: `AGENTS.md`, `Brewfile`, `justfile`, `macos/`, `wallpapers/`, and the lint configs.
+`.stow-local-ignore` keeps the repo-only files out of `~`: `AGENTS.md`, `Brewfile`, `justfile`, `macos/`, and `wallpapers/`.
 It also ignores `.claude/settings.local.json`, because a Claude Code session in this repo writes local settings there.
+
+## Neovim
+
+[fveracoechea/neovim](https://github.com/fveracoechea/neovim) owns the shared Linux/macOS Lua configuration, plugin lockfile, and editor checks.
+`neovim_revision` in `justfile` pins one commit.
+`just neovim` maintains its checkout under `$XDG_DATA_HOME/neovim-config` and links individual configuration files into `$XDG_CONFIG_HOME/nvim`.
+Both variables default to their standard paths under `~`.
+Stow no longer owns Neovim files.
+The Brewfile and `just bun-globals` supply the external tools; Nix is not needed.
+
+The installer refuses unrelated configuration files and local changes to its managed checkout or plugin lockfile.
+Update plugins in a separate shared-repository development checkout, commit its lockfile, then advance `neovim_revision` here.
+Sessions and undo files live under Neovim's state directory, not in this repo.
+`just check-neovim` exercises the pinned installation recipe twice in an isolated home, then runs shared checks and editor startup assertions.
+
+### Migrating the old Stow installation
+
+Before pulling the migration, run `just unstow` from the old checkout.
+This removes the old Neovim links while Stow still knows their source files.
+Preserve any plugin lockfile edits and sessions before updating.
+Then pull the migration and run `just install`.
+The new installer fails safely if old links remain; it does not replace them automatically.
 
 ## Operator
 
@@ -103,6 +125,8 @@ Each setup step is safe to run again.
 | `just bun-globals` | Installs the npm-only tools at pinned versions. |
 | `just operator` | Installs the pinned Operator release, its skills, and its Herdr plugin. |
 | `just agents` | Writes the global agent instructions from the pinned Operator release. |
+| `just neovim` | Installs the pinned shared Neovim configuration without Nix. |
+| `just check-neovim` | Checks the real Neovim installation in an isolated home. |
 | `just claude-mcp` | Adds missing user-wide Datadog and PostHog MCP servers to Claude Code. |
 | `just spotify` | Applies the spicetify theme. Run it again after each Spotify update. |
 | `just wallpaper <file>` | Sets the desktop picture to a file in `wallpapers/`. |

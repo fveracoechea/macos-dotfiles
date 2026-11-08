@@ -14,6 +14,9 @@ operator_release := "https://jsr.io/@fveracoechea/operator/" + operator_version
 # The gh stack extension and its agent skill come from this release.
 gh_stack_version := "v0.2.1"
 
+# Shared Lua configuration and plugin lockfile, updated together.
+neovim_revision := "6dc70cdf5f5593ec025ec3f673e31cab4a770142"
+
 # List the recipes.
 default:
     @just --list
@@ -45,7 +48,7 @@ bun-globals:
     bun add -g graphql-language-service-cli@3.5.0 @stylelint/language-server@1.1.1 oxlint@1.88.0
 
 # Setup that reads the stowed config. Each step is safe to run again.
-setup: hunk-gh gh-stack skills operator agents claude-mcp
+setup: hunk-gh gh-stack skills operator agents claude-mcp neovim
     # The Ghostty syntax ships inside Ghostty.app. Stow refuses absolute links.
     ln -sf /Applications/Ghostty.app/Contents/Resources/bat/syntaxes/ghostty.sublime-syntax ~/.config/bat/syntaxes/
     bat cache --build
@@ -58,6 +61,28 @@ setup: hunk-gh gh-stack skills operator agents claude-mcp
     nvim --headless +qa
     brew services start borders
     open -a AeroSpace
+
+# A pinned checkout stays outside Stow ownership and refuses local edits.
+_neovim-source:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    dir="${XDG_DATA_HOME:-$HOME/.local/share}/neovim-config"
+    url=https://github.com/fveracoechea/neovim.git
+    if [[ ! -d $dir/.git ]]; then
+      [[ ! -e $dir ]] || { printf 'Neovim checkout path already exists: %s\n' "$dir" >&2; exit 1; }
+      mkdir -p "$(dirname "$dir")"
+      git clone --quiet "$url" "$dir"
+    fi
+    [[ $(git -C "$dir" remote get-url origin) == "$url" ]] || { printf 'Unexpected Neovim checkout origin\n' >&2; exit 1; }
+    [[ -z $(git -C "$dir" status --porcelain) ]] || { printf 'Neovim checkout has local changes: %s\n' "$dir" >&2; exit 1; }
+    if [[ $(git -C "$dir" rev-parse HEAD) != "{{ neovim_revision }}" ]]; then
+      git -C "$dir" fetch --quiet origin "{{ neovim_revision }}"
+      git -C "$dir" checkout --quiet --detach "{{ neovim_revision }}"
+    fi
+
+# Install the shared configuration without Nix or directory folding.
+neovim: _neovim-source
+    bash "${XDG_DATA_HOME:-$HOME/.local/share}/neovim-config/scripts/install.sh"
 
 # Add missing user-wide MCP servers without replacing existing entries.
 claude-mcp:
@@ -143,7 +168,7 @@ wallpaper file:
     osascript -e 'tell application "System Events" to tell every desktop to set picture to POSIX file "{{ justfile_directory() }}/wallpapers/{{ file }}"'
 
 # Run every repo check. CI runs this same recipe.
-check: check-stow check-ssh check-agents check-shell check-lua check-opencode
+check: check-stow check-ssh check-agents check-shell check-neovim check-opencode
 
 # Stow into an empty home. This catches conflicts, and repo-only files
 # that .stow-local-ignore misses.
@@ -216,9 +241,20 @@ check-agents:
 check-shell:
     shellcheck macos/*.sh .config/borders/bordersrc
 
-check-lua:
-    stylua --check .config/nvim
-    luacheck .config/nvim
+# Exercise the actual consumer recipe and shared assertions in an empty home.
+check-neovim:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    home="$(mktemp -d)"
+    trap 'rm -rf "$home"' EXIT
+    isolated=(env -i PATH="$PATH" HOME="$home" BUN_INSTALL="$BUN_INSTALL"
+      XDG_CONFIG_HOME="$home/.config" XDG_DATA_HOME="$home/.local/share"
+      XDG_STATE_HOME="$home/.local/state" XDG_CACHE_HOME="$home/.cache")
+    "${isolated[@]}" just neovim
+    "${isolated[@]}" just neovim
+    source="$home/.local/share/neovim-config"
+    "${isolated[@]}" just --justfile "$source/justfile" check
+    "${isolated[@]}" bash "$source/tests/start.sh"
 
 # OpenCode drops a setting it does not know with no warning, so the schemas
 # catch typos. Then the installed OpenCode and herdr run against the stowed

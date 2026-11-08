@@ -51,6 +51,10 @@ brew "shellcheck"
 brew "shfmt"
 brew "check-jsonschema"
 brew "eslint_d"
+brew "prettier"
+brew "black"
+brew "isort"
+brew "imagemagick"
 
 # Coding agents
 brew "herdr"

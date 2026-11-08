@@ -16,5 +16,12 @@ jobs:
       - name: Install the check tools
         env:
           HOMEBREW_NO_AUTO_UPDATE: "1"
-        run: brew install just stow shellcheck stylua luacheck jq check-jsonschema opencode herdr
+        run: |
+          brew install just stow shellcheck stylua luacheck jq check-jsonschema opencode herdr \
+            neovim tree-sitter-cli lua-language-server biome oxfmt stylelint typescript \
+            vscode-langservers-extracted tailwindcss-language-server prettier black isort \
+            imagemagick fd fzf ripgrep gh lazygit bun
+          export BUN_INSTALL="$HOME/.bun"
+          bun add -g graphql-language-service-cli@3.5.0 @stylelint/language-server@1.1.1 oxlint@1.88.0
+          echo "$HOME/.bun/bin" >> "$GITHUB_PATH"
       - run: just check
