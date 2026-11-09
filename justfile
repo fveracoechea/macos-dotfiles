@@ -8,7 +8,7 @@ export BUN_INSTALL := env("BUN_INSTALL", home_directory() / ".bun")
 
 # Operator ships the CLI, the skills, and the global agent instructions.
 # Upgrade this pin on a schedule.
-operator_version := "2.2.0"
+operator_version := "2.2.4"
 operator_release := "https://jsr.io/@fveracoechea/operator/" + operator_version
 
 # The gh stack extension and its agent skill come from this release.
@@ -110,7 +110,6 @@ gh-stack:
 
 # Agent skills for Claude Code and OpenCode. Operator installs its own skills.
 skills:
-    bunx skills add -g anthropics/skills --skill frontend-design -a claude-code -a opencode -y
     bunx skills add -g modem-dev/hunk --skill hunk-review -a claude-code -a opencode -y
     # The skill matches the pinned gh stack extension.
     bunx skills add -g "github/gh-stack#{{ gh_stack_version }}" --skill gh-stack -a claude-code -a opencode -y

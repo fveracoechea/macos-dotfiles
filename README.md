@@ -44,7 +44,7 @@ The root `AGENTS.md` contains repository-specific quality checks and requires ch
 
 - `just operator` installs the release from JSR and writes the `operator` command to `~/.bun/bin`.
   It installs the Operator skills, `my-opinions` included, for OpenCode in `~/.config/opencode/skills` and for Claude Code in `~/.claude/skills`.
-  It also installs Matt Pocock's skills in `~/.agents/skills`, because `operator ready` requires them.
+  It also installs Matt Pocock's skills, which `operator ready` requires, and Anthropic's `frontend-design` skill in `~/.agents/skills`.
   Then it links the Operator Herdr plugin and sets OpenCode as the SuperAgent host.
 - Every Operator command needs a registered project, so `just operator` registers this checkout.
 - `just agents` writes `agents/AGENTS.md` from the commit of the pinned release to `~/.config/opencode/AGENTS.md` and `~/.claude/CLAUDE.md`.
@@ -119,7 +119,7 @@ Each setup step is safe to run again.
 
 | Recipe | What it does |
 | --- | --- |
-| `just upgrade` | Upgrades the Brewfile packages, then installs the latest hunk, herdr, and frontend-design skills. |
+| `just upgrade` | Upgrades the Brewfile packages, then installs the latest hunk, herdr, and gh-stack skills. |
 | `just restow` | Links new files and removes stale links. |
 | `just unstow` | Removes every link. |
 | `just bun-globals` | Installs the npm-only tools at pinned versions. |
