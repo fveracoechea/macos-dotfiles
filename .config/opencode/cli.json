@@ -2,19 +2,24 @@
   "$schema": "https://opencode.ai/v2/cli.json",
   "animations": true,
   "diffs": {
-    "wrap": "word",
+    "wrap": "none",
     "view": "unified"
   },
   "plugins": [
     "./herdr-opencode"
   ],
   "session": {
-    "scrollbar": false,
+    "scrollbar": true,
     "sidebar": "hide",
-    "thinking": "hide"
+    "thinking": "hide",
+    "markdown": "rendered"
   },
   "theme": {
     "mode": "system",
     "name": "system"
+  },
+  "tabs": {
+    "mode": "auto",
+    "indicators": "status"
   }
 }
