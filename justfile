@@ -303,6 +303,11 @@ check-opencode:
       [.[] | select(.type == "document") | .info][0]
       | .model == {providerID: "claude-agent", model: "opus"}
         and .agents.build.model == {providerID: "claude-agent", model: "opus", variant: "high"}
+        and .agents.super.model == {providerID: "claude-agent", model: "opus", variant: "high"}
+        and (.agents.super.system | contains("super-agent"))
+        and (.agents.super.permissions | any(. == {action: "edit", resource: "*", effect: "deny"}))
+        and (.agents.super.permissions | any(. == {action: "question", resource: "*", effect: "deny"}))
+        and (.default_agent // "build") == "build"
         and .providers["claude-agent"].models.opus.settings.effort == "high"
         and .providers.openai.models["gpt-6.1-sol"].variants[0].id == "high"
         and .permissions == [{action: "*", resource: "*", effect: "allow"}]

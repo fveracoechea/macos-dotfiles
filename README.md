@@ -79,6 +79,24 @@ The `lsp` list keeps only `nixd` and `typescript`, the same list as [fveracoeche
 This Mac has no `nixd`, so that entry stays inactive.
 For diagnostics, agents run the project lint and typecheck commands.
 
+### SuperAgent
+
+`opencode.json` defines a `super` primary agent for the Operator SuperAgent role.
+Pick it in the TUI. `build` stays the default agent.
+Its `system` prompt tells it to load the `super-agent` skill first.
+V2 has no other per-agent instruction field, and this one replaces OpenCode's short base prompt for that agent only.
+
+Its permissions keep it to reading, research and supervision:
+
+- `edit` covers `write` and `patch` and is denied, except under `/tmp/operator-plans/`, where it writes the files that Operator commands take with `--file`.
+- `question` is denied, so it asks the person in plain text instead of blocking its turn.
+- `subagent` allows only `explore`. `general` edits files.
+- The shell stays allowed for Operator, Herdr and `gh`, but denies `sleep`, `bun test`, `bun run`, `bun install`, `npm install`, `npm run`, `pkill`, `gh run rerun`, `git commit` and `git push`.
+- Slack tools that change canvases, lists, reactions, uploads, conversations or scheduled messages are denied. `slack_send_message` and `slack_send_message_draft` stay allowed for PR shares.
+- PostHog has one `exec` tool for reads and writes, so it stays allowed for research. The Datadog server already refuses writes for this org.
+
+`glow` renders long Markdown answers in a Herdr pane.
+
 ## Claude Code
 
 Homebrew installs the `claude-code` cask.
