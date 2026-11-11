@@ -48,6 +48,8 @@ The root `AGENTS.md` contains repository-specific quality checks and requires ch
   Then it links the Operator Herdr plugin and sets OpenCode as the SuperAgent host.
 - Every Operator command needs a registered project, so `just operator` registers this checkout.
 - `just agents` writes `agents/AGENTS.md` from the commit of the pinned release to `~/.config/opencode/AGENTS.md` and `~/.claude/CLAUDE.md`.
+  It also installs Operator's shared `super` and `worker` Markdown modes in `~/.config/opencode/agents/`.
+  `operator_agents_revision` pins the modes separately, so a prompt update does not upgrade the CLI or device state.
 - `just check-agents` allows the root `AGENTS.md` but rejects other tracked agent-instruction files or copies of Operator's opinions.
   It also fails if the pinned global instructions load a skill that no recipe installs.
 
@@ -65,6 +67,14 @@ Homebrew installs OpenCode v2.
 `just check-opencode` validates both files against the schemas at their `$schema` URLs.
 It then loads the stowed config with the installed OpenCode and Herdr in an empty home.
 The check fails if OpenCode logs a warning, drops an expected setting, or if Herdr changes `cli.json`.
+It also installs the pinned modes twice and checks their loaded prompts, model overrides, and permissions.
+
+Select `super` to supervise Operator work, or `worker` with an absolute Operator brief in the initial prompt.
+Both are primary agents because Operator dispatches workers into separate panes.
+Each mode loads its matching installed skill before other tool calls.
+`opencode.json` keeps only their machine-specific model overrides.
+Edit the shared prompts and permissions in Operator's `agents/opencode/`, then advance `operator_agents_revision` here.
+Run `just opencode-agents` to update only the modes.
 
 `cli.json` registers `./herdr-opencode`, so `herdr integration install opencode` only writes its own plugin files.
 Herdr also writes its v1 plugin files, because `herdr integration status` reads them.

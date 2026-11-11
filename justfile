@@ -11,6 +11,9 @@ export BUN_INSTALL := env("BUN_INSTALL", home_directory() / ".bun")
 operator_version := "2.2.4"
 operator_release := "https://jsr.io/@fveracoechea/operator/" + operator_version
 
+# OpenCode modes can advance without upgrading the Operator CLI or device state.
+operator_agents_revision := "4377970223c5261ced50ced88125cb90efb61baa"
+
 # The gh stack extension and its agent skill come from this release.
 gh_stack_version := "v0.2.1"
 
@@ -137,7 +140,7 @@ operator:
       "$operator" config apply --set superAgent.host=opencode --plan "$(jq -r .data.planId <<<"$plan")" --json >/dev/null
     fi
 
-# The global agent instructions from the commit of the pinned Operator release.
+# Global instructions from the release, plus independently pinned OpenCode modes.
 agents:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -150,6 +153,22 @@ agents:
       printf '%s\n' "$agents" >"$tmp"
       chmod 644 "$tmp"
       # mv replaces an old link. A write through the link would change its target.
+      mv -f "$tmp" "$file"
+    done
+    just opencode-agents
+
+# Operator owns the shared mode prompts and permissions. Stow owns only model overrides.
+opencode-agents:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    directory="$XDG_CONFIG_HOME/opencode/agents"
+    mkdir -p "$directory"
+    for name in super worker; do
+      file="$directory/$name.md"
+      tmp="$(mktemp "$file.XXXXXX")"
+      trap 'rm -f "$tmp"' EXIT
+      curl -fsSL "https://raw.githubusercontent.com/fveracoechea/operator/{{ operator_agents_revision }}/agents/opencode/$name.md" >"$tmp"
+      chmod 644 "$tmp"
       mv -f "$tmp" "$file"
     done
 
@@ -274,6 +293,8 @@ check-opencode:
     stow --target="$home" .
     isolated=(env -i PATH="$PATH" HOME="$home" XDG_CONFIG_HOME="$home/.config"
       XDG_STATE_HOME="$home/.local/state" XDG_DATA_HOME="$home/.local/share" XDG_CACHE_HOME="$home/.cache")
+    "${isolated[@]}" just opencode-agents
+    "${isolated[@]}" just opencode-agents
     cli="$home/.config/opencode/cli.json"
     before="$(shasum .config/opencode/cli.json)"
     # Twice, because setup must converge when it runs again.
@@ -303,10 +324,8 @@ check-opencode:
       [.[] | select(.type == "document") | .info][0]
       | .model == {providerID: "claude-agent", model: "opus"}
         and .agents.build.model == {providerID: "claude-agent", model: "opus", variant: "high"}
-        and .agents.super.model == {providerID: "claude-agent", model: "opus", variant: "high"}
-        and (.agents.super.system | contains("super-agent"))
-        and (.agents.super.permissions | any(. == {action: "edit", resource: "*", effect: "deny"}))
-        and (.agents.super.permissions | any(. == {action: "question", resource: "*", effect: "deny"}))
+        and .agents.super == {model: {providerID: "claude-agent", model: "opus", variant: "high"}}
+        and .agents.worker == {model: {providerID: "claude-agent", model: "opus", variant: "high"}}
         and (.default_agent // "build") == "build"
         and .providers["claude-agent"].models.opus.settings.effort == "high"
         and .providers.openai.models["gpt-6.1-sol"].variants[0].id == "high"
@@ -314,6 +333,34 @@ check-opencode:
         and .websearch.provider == "exa"
     ' <<<"$loaded" >/dev/null; then
       echo "error: OpenCode did not load the expected settings from opencode.json." >&2
+      status=1
+    fi
+    agents="$(cd "$home" && "${isolated[@]}" opencode debug agents --standalone --print-logs 2>"$log")"
+    if grep -E 'level=(WARN|ERROR|FATAL)' "$log" >&2; then
+      echo "error: OpenCode warned when it loaded the agent modes." >&2
+      status=1
+    fi
+    if ! jq -e '
+      def agent($id): .[] | select(.id == $id);
+      def rule($action; $resource; $effect):
+        any(.permissions[]; .action == $action and .resource == $resource and .effect == $effect);
+      (agent("super")
+        | .mode == "primary"
+          and .model == {providerID: "claude-agent", id: "opus", variant: "high"}
+          and (.system | contains("load the `super-agent` skill"))
+          and rule("edit"; "*"; "deny")
+          and rule("edit"; "/tmp/operator-plans/*"; "allow")
+          and rule("edit"; "/tmp/operator-answers/*"; "allow")
+          and rule("question"; "*"; "deny")
+          and rule("subagent"; "*"; "deny")
+          and (rule("subagent"; "explore"; "allow") | not))
+      and (agent("worker")
+        | .mode == "primary"
+          and .model == {providerID: "claude-agent", id: "opus", variant: "high"}
+          and (.system | contains("load the `worker-agent` skill"))
+          and rule("question"; "*"; "deny"))
+    ' <<<"$agents" >/dev/null; then
+      echo "error: OpenCode did not load the expected mode prompts, models, or permissions." >&2
       status=1
     fi
     exit "$status"
