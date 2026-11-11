@@ -3,6 +3,164 @@
   "agents": {
     "build": {
       "model": "claude-agent/opus#high"
+    },
+    "super": {
+      "description": "SuperAgent: supervises Operator work. Reads and researches, delegates edits to WorkerAgents.",
+      "mode": "primary",
+      "model": "claude-agent/opus#high",
+      "system": "You are the SuperAgent. Before anything else in this session, load the super-agent skill with the skill tool and follow it.",
+      "permissions": [
+        {
+          "action": "edit",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "edit",
+          "resource": "/tmp/operator-plans/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "/private/tmp/operator-plans/*",
+          "effect": "allow"
+        },
+        {
+          "action": "question",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "subagent",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "subagent",
+          "resource": "explore",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "sleep *",
+          "effect": "deny"
+        },
+        {
+          "action": "shell",
+          "resource": "bun test *",
+          "effect": "deny"
+        },
+        {
+          "action": "shell",
+          "resource": "bun run *",
+          "effect": "deny"
+        },
+        {
+          "action": "shell",
+          "resource": "bun dev *",
+          "effect": "deny"
+        },
+        {
+          "action": "shell",
+          "resource": "bun install *",
+          "effect": "deny"
+        },
+        {
+          "action": "shell",
+          "resource": "npm install *",
+          "effect": "deny"
+        },
+        {
+          "action": "shell",
+          "resource": "npm run *",
+          "effect": "deny"
+        },
+        {
+          "action": "shell",
+          "resource": "pkill *",
+          "effect": "deny"
+        },
+        {
+          "action": "shell",
+          "resource": "gh run rerun *",
+          "effect": "deny"
+        },
+        {
+          "action": "shell",
+          "resource": "git commit *",
+          "effect": "deny"
+        },
+        {
+          "action": "shell",
+          "resource": "git -C * commit *",
+          "effect": "deny"
+        },
+        {
+          "action": "shell",
+          "resource": "git push *",
+          "effect": "deny"
+        },
+        {
+          "action": "shell",
+          "resource": "git -C * push *",
+          "effect": "deny"
+        },
+        {
+          "action": "slack_slack_add_list_record",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "slack_slack_add_reaction",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "slack_slack_complete_file_upload",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "slack_slack_get_file_upload_url",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "slack_slack_create_canvas",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "slack_slack_create_conversation",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "slack_slack_create_list",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "slack_slack_schedule_message",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "slack_slack_update_canvas",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "slack_slack_update_list",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "slack_slack_update_list_record",
+          "resource": "*",
+          "effect": "deny"
+        }
+      ]
     }
   },
   "experimental": {
