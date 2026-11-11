@@ -91,7 +91,7 @@ Its permissions keep it to reading, research and supervision:
 - `edit` covers `write` and `patch` and is denied, except under `/tmp/operator-plans/`, where it writes the files that Operator commands take with `--file`.
 - `question` is denied, so it asks the person in plain text instead of blocking its turn.
 - `subagent` allows only `explore`. `general` edits files.
-- The shell stays allowed for Operator, Herdr and `gh`, but denies `sleep`, `bun test`, `bun run`, `bun install`, `npm install`, `npm run`, `pkill`, `gh run rerun`, `git commit` and `git push`.
+- The shell stays allowed for Operator, Herdr and `gh`, but denies `sleep`, `bun test`, `bun run`, `bun dev`, `bun install`, `npm install`, `npm run`, `pkill`, `gh run rerun`, and `git commit` and `git push` with or without `git -C <path>`.
 - Slack tools that change canvases, lists, reactions, uploads, conversations or scheduled messages are denied. `slack_send_message` and `slack_send_message_draft` stay allowed for PR shares.
 - PostHog has one `exec` tool for reads and writes, so it stays allowed for research. The Datadog server already refuses writes for this org.
 

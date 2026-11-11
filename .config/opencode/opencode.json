@@ -57,6 +57,11 @@
         },
         {
           "action": "shell",
+          "resource": "bun dev *",
+          "effect": "deny"
+        },
+        {
+          "action": "shell",
           "resource": "bun install *",
           "effect": "deny"
         },
@@ -87,7 +92,17 @@
         },
         {
           "action": "shell",
+          "resource": "git -C * commit *",
+          "effect": "deny"
+        },
+        {
+          "action": "shell",
           "resource": "git push *",
+          "effect": "deny"
+        },
+        {
+          "action": "shell",
+          "resource": "git -C * push *",
           "effect": "deny"
         },
         {
