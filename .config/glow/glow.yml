@@ -1,0 +1,11 @@
+# style name or JSON path (default "auto")
+style: "auto"
+# mouse support (TUI-mode only)
+mouse: false
+# use pager to display markdown
+pager: false
+# Word-wrap at this width. 0 wraps at the terminal width, capped at 120.
+# The -w flag differs: -w 0 turns wrapping off.
+width: 0
+# show all files, including hidden and ignored.
+all: false
