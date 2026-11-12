@@ -285,8 +285,9 @@ check-opencode:
       echo "error: $version is not OpenCode v2. Run brew upgrade opencode." >&2
       exit 1
     fi
+    # check-jsonschema never refreshes a cached schema, so new settings would fail.
     for file in .config/opencode/opencode.json .config/opencode/cli.json; do
-      check-jsonschema --schemafile "$(jq -r '.["$schema"]' "$file")" "$file"
+      check-jsonschema --no-cache --schemafile "$(jq -r '.["$schema"]' "$file")" "$file"
     done
     home="$(mktemp -d)"
     trap 'rm -rf "$home"' EXIT
@@ -329,6 +330,9 @@ check-opencode:
         and (.default_agent // "build") == "build"
         and .providers["claude-agent"].models.opus.settings.effort == "high"
         and .providers.openai.models["gpt-6.1-sol"].variants[0].id == "high"
+        and .providers.openai.settings.compaction == {type: "native"}
+        and .compaction == {buffer: "25%", keep: {tokens: 25000}}
+        and .formatter == true
         and .permissions == [{action: "*", resource: "*", effect: "allow"}]
         and .websearch.provider == "exa"
     ' <<<"$loaded" >/dev/null; then

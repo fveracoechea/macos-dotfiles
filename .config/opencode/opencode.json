@@ -11,9 +11,16 @@
       "model": "claude-agent/opus#high"
     }
   },
+  "compaction": {
+    "buffer": "25%",
+    "keep": {
+      "tokens": 25000
+    }
+  },
   "experimental": {
     "todo": true
   },
+  "formatter": true,
   "lsp": {
     "nixd": {
       "command": [
@@ -95,6 +102,11 @@
               }
             }
           ]
+        }
+      },
+      "settings": {
+        "compaction": {
+          "type": "native"
         }
       }
     }
