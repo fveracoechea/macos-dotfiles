@@ -18,7 +18,7 @@ operator_agents_revision := "4377970223c5261ced50ced88125cb90efb61baa"
 gh_stack_version := "v0.2.1"
 
 # Shared Lua configuration and plugin lockfile, updated together.
-neovim_revision := "6dc70cdf5f5593ec025ec3f673e31cab4a770142"
+neovim_revision := "54d70b33bde49dfe962ac1f89167cce868aa16a4"
 
 # List the recipes.
 default:
